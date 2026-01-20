@@ -24,6 +24,7 @@ on:
 env:
   NUGET_OUTPUT_FOLDER: '.tmp'
   PACK_PROJECT_PATH: './Util.AuthorizationHelper/Util.AuthorizationHelper.csproj'
+  NUGET_PACKAGE_NAME_OVERRIDE: 'Xen.Utils.AspnetAuthorizationHelper'
   PROJECT_NAME: 'Util.AuthorizationHelper'
   TARGET_CONFIGURATION: 'Release'
   DOTNET_VERSION: '10.0.x'
@@ -57,6 +58,11 @@ jobs:
     - name: Override version
       if: "${{ inputs.override_version == true || inputs.override_version == 'true' }}"
       run: echo "VERSION=${{ inputs.version }}" >> $GITHUB_ENV
+    - name: Set default package name
+      run: echo "NUGET_PACKAGE_NAME=${{ env.PROJECT_NAME }}" >> $GITHUB_ENV
+    - name: Override package name
+      if: "${{ env.NUGET_PACKAGE_NAME_OVERRIDE != '' }}"
+      run: echo "NUGET_PACKAGE_NAME=${{ env.NUGET_PACKAGE_NAME_OVERRIDE }}" >> $GITHUB_ENV
     - name: Setup .NET
       uses: actions/setup-dotnet@v5
       with:
@@ -66,9 +72,9 @@ jobs:
     - name: Test
       run: dotnet test --configuration ${TARGET_CONFIGURATION} /p:Version=${VERSION} --no-build
     - name: Pack
-      run: dotnet pack --configuration ${TARGET_CONFIGURATION} /p:PackageVersion=${VERSION} --no-build --output ${NUGET_OUTPUT_FOLDER} --force ${PACK_PROJECT_PATH} 
+      run: dotnet pack --configuration ${TARGET_CONFIGURATION} /p:PackageId:${NUGET_PACKAGE_NAME} /p:PackageVersion=${VERSION} --no-build --output ${NUGET_OUTPUT_FOLDER} --force ${PACK_PROJECT_PATH} 
     - name: Push
-      run: dotnet nuget push ${NUGET_OUTPUT_FOLDER}/${PROJECT_NAME}.${VERSION}.nupkg --source ${NUGET_ENDPOINT_URL} --api-key ${{ steps.login.outputs.NUGET_API_KEY }}
+      run: dotnet nuget push ${NUGET_OUTPUT_FOLDER}/${NUGET_PACKAGE_NAME}.${VERSION}.nupkg --source ${NUGET_ENDPOINT_URL} --api-key ${{ steps.login.outputs.NUGET_API_KEY }}
       env:
         NUGET_ENDPOINT_URL: https://api.nuget.org/v3/index.json
         NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
