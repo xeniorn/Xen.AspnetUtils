@@ -72,7 +72,7 @@ jobs:
     - name: Test
       run: dotnet test --configuration ${TARGET_CONFIGURATION} /p:Version=${VERSION} --no-build
     - name: Pack
-      run: dotnet pack --configuration ${TARGET_CONFIGURATION} /p:PackageId:${NUGET_PACKAGE_NAME} /p:PackageVersion=${VERSION} --no-build --output ${NUGET_OUTPUT_FOLDER} --force ${PACK_PROJECT_PATH} 
+      run: dotnet pack --configuration ${TARGET_CONFIGURATION} /p:PackageId=${NUGET_PACKAGE_NAME} /p:PackageVersion=${VERSION} --no-build --output ${NUGET_OUTPUT_FOLDER} --force ${PACK_PROJECT_PATH} 
     - name: Push
       run: dotnet nuget push ${NUGET_OUTPUT_FOLDER}/${NUGET_PACKAGE_NAME}.${VERSION}.nupkg --source ${NUGET_ENDPOINT_URL} --api-key ${{ steps.login.outputs.NUGET_API_KEY }}
       env:
