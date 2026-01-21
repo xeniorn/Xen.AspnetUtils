@@ -9,7 +9,7 @@ namespace Util.AuthorizationHelper.Authentication;
 public abstract class SpecApiAuthStandardsV2026_Md5 : SpecApiAuthStandardsV2026Base, ISpecApiAuthStandards
 {
     /// <inheritdoc />
-    public new static Func<string, string>? ApiKeyToClaimValueTransformer => HashHelper.GetMd5HashHexString;
+    public static Func<string, string>? ApiKeyToClaimValueTransformer => x => HashHelper.GetMd5HashHexString(x, lowercase:true);
 
 
     /// <inheritdoc />
