@@ -56,4 +56,8 @@
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.1" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<InternalsVisibleTo Include="Util.AuthorizationHelper.Test" />
+	</ItemGroup>
+
 </Project>

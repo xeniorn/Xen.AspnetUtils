@@ -25,7 +25,7 @@ public static class DIHelper
     public static AuthenticationBuilder AddSpecialApiKeyAuthentication<TApiKeyStandard>(this AuthenticationBuilder builder)
         where TApiKeyStandard : ISpecApiAuthStandards
     {
-        return builder.AddScheme<SpecApiAuthHandler<TApiKeyStandard>.MyOptions, SpecApiAuthHandler<TApiKeyStandard>>
+        return builder.AddScheme<AuthenticationSchemeOptions, SpecApiAuthHandler<TApiKeyStandard>>
         (
             TApiKeyStandard.DefaultSchemeName,
             options =>

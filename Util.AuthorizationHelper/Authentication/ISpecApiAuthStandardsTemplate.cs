@@ -8,7 +8,8 @@ namespace Util.AuthorizationHelper.Authentication;
 public interface ISpecApiAuthStandards
 {
     /// <summary>
-    /// 
+    /// Creates a standardized <see cref="ClaimDefinition"/> for the provided api key. The definition will conform to the provided
+    /// <see cref="ISpecApiAuthStandards"/> standard, including claim type & transformations
     /// </summary>
     /// <param name="apiKey"></param>
     /// <param name="customClaimType">In case you want to override the standard one (which you shouldn't generally do)</param>

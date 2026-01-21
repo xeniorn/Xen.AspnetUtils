@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
+using Microsoft.AspNetCore.Http;
 
 namespace Util.AuthorizationHelper.Authentication;
 
@@ -11,37 +12,48 @@ namespace Util.AuthorizationHelper.Authentication;
 /// with a single claim each that asserts the holder "has" the given API key or a derived value.
 /// Purpose of this is to enable claim/policy based authorization based on API keys provided in HTTP request headers
 /// </summary>
-public class SpecApiAuthHandler<TApiKeyStandard> : AuthenticationHandler<SpecApiAuthHandler<TApiKeyStandard>.MyOptions>
+public class SpecApiAuthHandler<TApiKeyStandard> : AuthenticationHandler<AuthenticationSchemeOptions>
     where TApiKeyStandard : ISpecApiAuthStandards
 {
-    public class MyOptions : AuthenticationSchemeOptions
-    {
-        public string HeaderNameThatContainsApiKey { get; set; } = TApiKeyStandard.DefaultHeaderName;
-        public string HasApiClaimType { get; set; } = TApiKeyStandard.DefaultClaimType;
-    }
-
-
     /// <inheritdoc />
-    public SpecApiAuthHandler(IOptionsMonitor<MyOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock) : base(options, logger, encoder, clock)
+    public SpecApiAuthHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock) : base(options, logger, encoder, clock)
     {
     }
 
     /// <inheritdoc />
-    protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
+    protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        if (!Request.Headers.TryGetValue(Options.HeaderNameThatContainsApiKey, out var apiKeyValues))
-            return AuthenticateResult.NoResult();
+        var result = GetAuthenticationTicketFromRequest(Request) is { } ticket
+            ? AuthenticateResult.Success(ticket)
+            : AuthenticateResult.NoResult();
+
+        return Task.FromResult(result);
+    }
+
+    /// <summary>
+    /// Does the whole process from Request to AuthTicket. Separated from <see cref="HandleAuthenticateAsync"/>
+    /// to allow for easier unit testing without having to mock the whole auth framework
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    internal static AuthenticationTicket? GetAuthenticationTicketFromRequest(HttpRequest request)
+    {
+        if (!request.Headers.TryGetValue(TApiKeyStandard.DefaultHeaderName, out var apiKeyValues))
+            return null;
 
         var principal = new ClaimsPrincipal();
 
         foreach (var apiKeyValue in apiKeyValues.Where(x => !string.IsNullOrEmpty(x)).OfType<string>())
         {
-            var identity = new ClaimsIdentity(Scheme.Name);
-            identity.AddClaim(new Claim(Options.HasApiClaimType, apiKeyValue));
+            var claimDef = ISpecApiAuthStandards.StandardizedApiKeyClaim<TApiKeyStandard>(apiKeyValue);
+            
+            var identity = new ClaimsIdentity(TApiKeyStandard.DefaultSchemeName);
+            identity.AddClaim(claimDef.ToClaim());
+
             principal.AddIdentity(identity);
         }
 
-        var ticket = new AuthenticationTicket(principal, Scheme.Name);
-        return AuthenticateResult.Success(ticket);
+        var ticket = new AuthenticationTicket(principal, TApiKeyStandard.DefaultSchemeName);
+        return ticket;
     }
 }
