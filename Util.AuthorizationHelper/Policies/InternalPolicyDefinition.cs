@@ -84,6 +84,39 @@ public record InternalPolicyDefinition<TStandard>(
         AppInternalClaimRequirementAlternatives.Select(x => x.ToBaseRequirement()).ToArray())
     where TStandard : IInternalAuthStandard
 {
+    public InternalPolicyDefinition(string name,
+        AppInternalClaimDefinition<TStandard> singleClaimRequirement)
+        : this(name, string.Empty, false, [new(singleClaimRequirement)])
+    {
+    }
+
+    public InternalPolicyDefinition(string name,
+        string description,
+        AppInternalClaimDefinition<TStandard> singleClaimRequirement)
+        : this(name, description, false, [new(singleClaimRequirement)])
+    {
+    }
+
+    public InternalPolicyDefinition(string name,
+        ClaimRequirement claimRequirement)
+        : this(name, string.Empty, false, [claimRequirement])
+    {
+    }
+
+    public InternalPolicyDefinition(string name,
+        string description,
+        ClaimRequirement claimRequirement)
+        : this(name, description, false, [claimRequirement])
+    {
+    }
+
+    public InternalPolicyDefinition(string name,
+        string Description,
+        params ClaimRequirement[] claimRequirementAlternatives)
+        : this(name, Description, false, claimRequirementAlternatives)
+    {
+    }
+
     public record ClaimRequirement(IReadOnlyCollection<AppInternalClaimDefinition<TStandard>> RequiredClaims)
     {
         public ClaimRequirement(AppInternalClaimDefinition<TStandard> requiredClaim) : this([requiredClaim]) { }
