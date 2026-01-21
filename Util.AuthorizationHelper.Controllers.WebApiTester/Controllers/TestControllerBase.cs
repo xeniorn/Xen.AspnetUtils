@@ -14,15 +14,15 @@ public class TestControllerBase<TController> : ControllerBase
         return Ok("Yes! From " + GetType().Name);
     }
 
-    public class ConventionBase(ConventionBase.MyOptionsBase options) : SpecialControllerConvention<TController>(options)
+    public class ConventionBase(ConventionBase.MyOptionsBase options, ILogger? logger) : SpecialControllerConvention<TController>(options, logger)
     {
         public class MyOptionsBase : IMyOptions
         {
             /// <inheritdoc />
-            public string? DefaultPolicyName => Const.Polici;
+            public string? DefaultPolicyName => Const.DefaultPerControllerPolicy;
 
             /// <inheritdoc />
-            public IReadOnlyDictionary<string, string>? PerActionPolicyNames => new Dictionary<string, string> { ["Get"] = Const.Polici2 };
+            public IReadOnlyDictionary<string, string>? PerActionPolicyNames => new Dictionary<string, string> { ["Get"] = Const.DefaultPerActionPolicy };
 
             /// <inheritdoc />
             public bool ReplaceExistingFilters => false;

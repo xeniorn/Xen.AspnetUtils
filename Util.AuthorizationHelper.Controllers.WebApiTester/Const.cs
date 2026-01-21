@@ -1,7 +1,16 @@
 namespace Util.AuthorizationHelper.Controllers.WebApiTester;
 
+/// <summary>
+/// 
+/// </summary>
 public static class Const
 {
-    public const string Polici = "Polici";
-    public const string Polici2 = "Polici2";
+    /// <summary>
+    /// 
+    /// </summary>
+    public const string DefaultPerControllerPolicy = "Polici";
+    /// <summary>
+    /// 
+    /// </summary>
+    public const string DefaultPerActionPolicy = "Polici2";
 }

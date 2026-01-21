@@ -4,7 +4,7 @@ namespace Util.AuthorizationHelper.Controllers.WebApiTester.Controllers;
 
 public class ControllerA : TestControllerBase<ControllerA>
 {
-    public class Convention(IOptions<Convention.MyOptions> options) : ConventionBase(options.Value)
+    public class Convention(IOptions<Convention.MyOptions> options, ILogger<Convention> logger) : ConventionBase(options.Value, logger)
     {
         public class MyOptions : MyOptionsBase
         {
@@ -14,7 +14,7 @@ public class ControllerA : TestControllerBase<ControllerA>
 
 public class ControllerB : TestControllerBase<ControllerB>
 {
-    public class Convention(IOptions<Convention.MyOptions> options) : ConventionBase(options.Value)
+    public class Convention(IOptions<Convention.MyOptions> options, ILogger<Convention> logger) : ConventionBase(options.Value, logger)
     {
         public class MyOptions : MyOptionsBase
         {
@@ -24,7 +24,7 @@ public class ControllerB : TestControllerBase<ControllerB>
 
 public class ControllerC : TestControllerBase<ControllerC>
 {
-    public class Convention(IOptions<Convention.MyOptions> options) : ConventionBase(options.Value)
+    public class Convention(IOptions<Convention.MyOptions> options, ILogger<Convention> logger) : ConventionBase(options.Value, logger)
     {
         public class MyOptions : MyOptionsBase
         {
