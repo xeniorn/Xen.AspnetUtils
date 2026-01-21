@@ -2,6 +2,8 @@
 
 namespace Util.AuthorizationHelper.Policies;
 
+
+
 /// <summary>
 /// Represents an internal policy definition that specifies a set of claim requirements and related metadata for
 /// authorization purposes.
@@ -57,6 +59,37 @@ public record InternalPolicyDefinition(
     {
         public ClaimRequirement(string claimNamespace, string claimValue) : this([new(claimNamespace, claimValue)]) { }
         public ClaimRequirement(ClaimDefinition requiredClaim) : this([requiredClaim]) { }
+
+    };
+}
+
+
+/// <summary>
+/// Version of <see cref="InternalPolicyDefinition"/> strongly associated with a standard
+/// </summary>
+/// <typeparam name="TStandard"></typeparam>
+/// <param name="Name"></param>
+/// <param name="Description"></param>
+/// <param name="StrongerThanAdmin"></param>
+/// <param name="AppInternalClaimRequirementAlternatives"></param>
+public record InternalPolicyDefinition<TStandard>(
+    string Name,
+    string Description,
+    bool StrongerThanAdmin,
+    IReadOnlyCollection<InternalPolicyDefinition<TStandard>.ClaimRequirement> AppInternalClaimRequirementAlternatives)
+    : InternalPolicyDefinition(
+        Name,
+        Description,
+        StrongerThanAdmin,
+        AppInternalClaimRequirementAlternatives.Select(x => x.ToBaseRequirement()).ToArray())
+    where TStandard : IInternalAuthStandard
+{
+    public record ClaimRequirement(IReadOnlyCollection<AppInternalClaimDefinition<TStandard>> RequiredClaims)
+    {
+        public ClaimRequirement(AppInternalClaimDefinition<TStandard> requiredClaim) : this([requiredClaim]) { }
+
+        public InternalPolicyDefinition.ClaimRequirement ToBaseRequirement()
+            => new InternalPolicyDefinition.ClaimRequirement(RequiredClaims);
 
     };
 }
