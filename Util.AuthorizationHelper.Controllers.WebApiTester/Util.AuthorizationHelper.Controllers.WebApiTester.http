@@ -1,0 +1,6 @@
+@Util.AuthorizationHelper.Controllers.WebApiTester_HostAddress = http://localhost:5285
+
+GET {{Util.AuthorizationHelper.Controllers.WebApiTester_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
