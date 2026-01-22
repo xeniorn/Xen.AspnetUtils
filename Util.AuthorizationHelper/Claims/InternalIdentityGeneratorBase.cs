@@ -16,11 +16,23 @@ public abstract class InternalIdentityGeneratorBase<T>(IEnumerable<IInternalClai
     : IClaimsTransformation
     where T : IInternalAuthStandard
 {
+    /// <summary>
+    /// 
+    /// </summary>
     protected MyOptions Options { get; } = options ?? new MyOptions();
 
+    /// <summary>
+    /// 
+    /// </summary>
     public class MyOptions
     {
+        /// <summary>
+        /// What to do with other ClaimIdentities
+        /// </summary>
         public OtherIdentityHandlingMode OtherIdentityHandling { get; set; } = OtherIdentityHandlingMode.Keep;
+        /// <summary>
+        /// What to do if the internal identity already exists
+        /// </summary>
         public PreexistingInternalIdentityHandlingMode PreexistingInternalIdentityHandling { get; set; } = PreexistingInternalIdentityHandlingMode.Merge;
 
         public enum OtherIdentityHandlingMode
