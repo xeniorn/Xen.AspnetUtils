@@ -72,9 +72,9 @@ jobs:
     - name: Test
       run: dotnet test --configuration ${TARGET_CONFIGURATION} /p:Version=${VERSION} --no-build
     - name: Pack
-      run: dotnet pack --configuration ${TARGET_CONFIGURATION} /p:PackageId=${NUGET_PACKAGE_NAME} /p:PackageVersion=${VERSION} --no-build --output ${NUGET_OUTPUT_FOLDER} --force ${PACK_PROJECT_PATH} 
+      run: dotnet pack --configuration ${TARGET_CONFIGURATION} /p:PackageId=${NUGET_PACKAGE_NAME} /p:PackageVersion=${VERSION} /p:ContinuousIntegrationBuild=true --no-build --output ${NUGET_OUTPUT_FOLDER} --force ${PACK_PROJECT_PATH} 
     - name: Push
-      run: dotnet nuget push ${NUGET_OUTPUT_FOLDER}/${NUGET_PACKAGE_NAME}.${VERSION}.nupkg --source ${NUGET_ENDPOINT_URL} --api-key ${{ steps.login.outputs.NUGET_API_KEY }}
+      run: dotnet nuget push ${NUGET_OUTPUT_FOLDER}/${NUGET_PACKAGE_NAME}.${VERSION}.nupkg ${NUGET_OUTPUT_FOLDER}/${NUGET_PACKAGE_NAME}.${VERSION}.snupkg --source ${NUGET_ENDPOINT_URL} --api-key ${{ steps.login.outputs.NUGET_API_KEY }}
       env:
         NUGET_ENDPOINT_URL: https://api.nuget.org/v3/index.json
         NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
