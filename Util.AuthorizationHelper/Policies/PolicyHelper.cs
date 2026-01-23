@@ -40,25 +40,38 @@ public static class PolicyHelper
     /// <param name="authSchemes">which auth schemes are allowed to participate. Otherwise, use default</param>
     // ReSharper disable once MemberCanBePrivate.Global
     public static void AddPolicy(this AuthorizationOptions builder, InternalPolicyDefinition policyDefinition, IReadOnlyCollection<string>? authSchemes = null)
+     => builder.AddPolicy(
+         policyDefinition.Name, 
+         policyBuilder => policyBuilder.SetupUsing(policyDefinition, authSchemes));
+
+    /// <summary>
+    /// Extracted for easier testing / debugging purposes
+    /// </summary>
+    /// <param name="policyBuilder"></param>
+    /// <param name="policyDefinition"></param>
+    /// <param name="authSchemes"></param>
+    internal static void SetupUsing(this AuthorizationPolicyBuilder policyBuilder, 
+        InternalPolicyDefinition policyDefinition, 
+        IReadOnlyCollection<string>? authSchemes = null)
     {
-        builder.AddPolicy(policyDefinition.Name, policyBuilder =>
+        if (authSchemes is not null)
         {
-            policyBuilder
-                .RequireAssertion(context =>
-                    {
-                        foreach (var claimRequirement in policyDefinition.ClaimRequirementAlternatives)
-                        {
-                            if (context.User.HasClaims(claimRequirement.RequiredClaims))
-                                return true;
-                        }
+            policyBuilder.AuthenticationSchemes = authSchemes.ToArray();
+        }
 
-                        return false;
-                    });
-
-            if (authSchemes is not null)
+        policyBuilder
+            .RequireAssertion(context =>
             {
-                policyBuilder.AuthenticationSchemes = authSchemes.ToArray();
-            }
-        });
+                foreach (var claimRequirement in policyDefinition.ClaimRequirementAlternatives)
+                {
+                    if (context.User.HasClaims(claimRequirement.RequiredClaims))
+                        return true;
+                }
+
+                return false;
+            });
+
+        
     }
+    
 }
