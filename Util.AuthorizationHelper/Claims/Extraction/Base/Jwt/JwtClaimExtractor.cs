@@ -7,12 +7,12 @@ namespace Util.AuthorizationHelper.Claims.Extraction.Base.Jwt;
 /// Knows how to extract claims from JWT tokens.
 /// Uses only a single relevant identity within the claims principal, defined by the constraints in <see cref="IMyOptions"/>
 /// </summary>
-/// <typeparam name="T"></typeparam>
+/// <typeparam name="TStandard"></typeparam>
 /// <param name="options"></param>
 /// <param name="logger"></param>
-public abstract class JwtClaimExtractor<T>(JwtClaimExtractor<T>.IMyOptions options, ILogger logger)
-    : SimpleInternalClaimExtractor<T>
-    where T : IInternalAuthStandard
+public abstract class JwtClaimExtractor<TStandard>(JwtClaimExtractor<TStandard>.IMyOptions options, ILogger logger)
+    : SimpleInternalClaimExtractor<TStandard>
+    where TStandard : IInternalAuthStandard
 {
     /// <summary>
     /// Should primarily rely on <see cref="RequiredAuthenticationType"/>

@@ -3,12 +3,12 @@
 /// <summary>
 /// Supposed to be inherited by app-internal claim definition type (1 per security domain)
 /// </summary>
-/// <typeparam name="T"></typeparam>
-public abstract record AppInternalClaimDefinition<T> : ClaimDefinition
-    where T : IInternalAuthStandard
+/// <typeparam name="TStandard"></typeparam>
+public abstract record AppInternalClaimDefinition<TStandard> : ClaimDefinition
+    where TStandard : IInternalAuthStandard
 {
     private const int MaxLength = 500;
-    protected AppInternalClaimDefinition(string name) : base(T.Namespace, name)
+    protected AppInternalClaimDefinition(string name) : base(TStandard.Namespace, name)
     {
         ValidateName(name);
         Name = name;

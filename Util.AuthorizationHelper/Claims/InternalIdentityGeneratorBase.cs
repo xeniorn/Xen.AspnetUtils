@@ -9,12 +9,12 @@ namespace Util.AuthorizationHelper.Claims;
 /// An <see cref="IClaimsTransformation"/> that creates a <see cref="ClaimsIdentity"/> representing the internal auth state for this application, conforming the selected <see cref="IInternalAuthStandard"/>
 /// This ClaimsIdentity will contain only claims of the type defined in the standard.
 /// </summary>
-/// <typeparam name="T"></typeparam>
+/// <typeparam name="TStandard"></typeparam>
 /// <param name="claimExtractors">Accepts a  typed collection of internal claim extractors to allow for easier injection</param>
 /// <param name="options"></param>
-public abstract class InternalIdentityGeneratorBase<T>(IEnumerable<IInternalClaimExtractor<T>> claimExtractors, InternalIdentityGeneratorBase<T>.MyOptions? options)
+public abstract class InternalIdentityGeneratorBase<TStandard>(IEnumerable<IInternalClaimExtractor<TStandard>> claimExtractors, InternalIdentityGeneratorBase<TStandard>.MyOptions? options)
     : IClaimsTransformation
-    where T : IInternalAuthStandard
+    where TStandard : IInternalAuthStandard
 {
     /// <summary>
     /// 
@@ -54,7 +54,7 @@ public abstract class InternalIdentityGeneratorBase<T>(IEnumerable<IInternalClai
         public class ExistingInternalIdentityException : Exception
         {
             public ExistingInternalIdentityException()
-                : base($"Preexisting internal identity of type {T.AuthenticationTypeName} found while handling mode is set to disallow this.")
+                : base($"Preexisting internal identity of type {TStandard.AuthenticationTypeName} found while handling mode is set to disallow this.")
             {
             }
         }
@@ -70,7 +70,7 @@ public abstract class InternalIdentityGeneratorBase<T>(IEnumerable<IInternalClai
     /// <c>T.AuthenticationTypeName</c>.
     /// </summary>
     /// <returns>A <see cref="ClaimsIdentity"/> initialized with the authentication type from <c>T.AuthenticationTypeName</c>.</returns>
-    private ClaimsIdentity ConstructInternalIdentity() => new ClaimsIdentity(T.AuthenticationTypeName);
+    private ClaimsIdentity ConstructInternalIdentity() => new ClaimsIdentity(TStandard.AuthenticationTypeName);
 
     /// <summary>
     /// Obtains the internal ClaimsIdentity according to the configured handling mode.
@@ -85,7 +85,7 @@ public abstract class InternalIdentityGeneratorBase<T>(IEnumerable<IInternalClai
             return ConstructInternalIdentity();
 
         var existing = principal.Identities
-            .Where(identity => identity.AuthenticationType == T.AuthenticationTypeName)
+            .Where(identity => identity.AuthenticationType == TStandard.AuthenticationTypeName)
             .ToArray();
 
         if (Options.PreexistingInternalIdentityHandling == MyOptions.PreexistingInternalIdentityHandlingMode.Error && existing.Any())
@@ -133,7 +133,7 @@ public abstract class InternalIdentityGeneratorBase<T>(IEnumerable<IInternalClai
             case MyOptions.OtherIdentityHandlingMode.Keep:
                 foreach (var identity in principal.Identities)
                 {
-                    if (identity.AuthenticationType != T.AuthenticationTypeName)
+                    if (identity.AuthenticationType != TStandard.AuthenticationTypeName)
                     {
                         newPrincipal.AddIdentity(identity);
                     }
