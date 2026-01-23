@@ -29,7 +29,10 @@ public static class PolicyHelper
     /// <param name="authSchemes"></param>
     public static void AddPolicies(this AuthorizationOptions builder, IReadOnlyCollection<InternalPolicyDefinition> policyDefinitions, IReadOnlyCollection<string>? authSchemes = null)
     {
-        policyDefinitions.ToList().ForEach(x => builder.AddPolicy(x, authSchemes));
+        foreach (var x in policyDefinitions)
+        {
+            builder.AddPolicy(x, authSchemes);
+        }
     }
 
     /// <summary>

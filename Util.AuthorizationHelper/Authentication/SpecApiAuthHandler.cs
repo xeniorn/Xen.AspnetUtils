@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Util.AuthorizationHelper.Authentication;
 
@@ -23,7 +24,7 @@ public class SpecApiAuthHandler<TApiKeyStandard> : AuthenticationHandler<Authent
     /// <inheritdoc />
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        var result = GetAuthenticationTicketFromRequest(Request) is { } ticket
+        var result = GetAuthenticationTicketFromRequest(Request, Logger ?? NullLogger.Instance) is { } ticket
             ? AuthenticateResult.Success(ticket)
             : AuthenticateResult.NoResult();
 
@@ -35,14 +36,15 @@ public class SpecApiAuthHandler<TApiKeyStandard> : AuthenticationHandler<Authent
     /// to allow for easier unit testing without having to mock the whole auth framework
     /// </summary>
     /// <param name="request"></param>
+    /// <param name="logger"></param>
     /// <returns></returns>
-    internal static AuthenticationTicket? GetAuthenticationTicketFromRequest(HttpRequest request)
+    internal static AuthenticationTicket? GetAuthenticationTicketFromRequest(HttpRequest request, ILogger logger)
     {
         if (!request.Headers.TryGetValue(TApiKeyStandard.DefaultHeaderName, out var apiKeyValues))
             return null;
 
         var principal = new ClaimsPrincipal();
-
+        
         foreach (var apiKeyValue in apiKeyValues.Where(x => !string.IsNullOrEmpty(x)).OfType<string>())
         {
             var claimDef = ISpecApiAuthStandards.StandardizedApiKeyClaim<TApiKeyStandard>(apiKeyValue);
@@ -51,6 +53,11 @@ public class SpecApiAuthHandler<TApiKeyStandard> : AuthenticationHandler<Authent
             identity.AddClaim(claimDef.ToClaim());
 
             principal.AddIdentity(identity);
+
+            if (logger.IsEnabled(LogLevel.Debug))
+            {
+                logger.Log(LogLevel.Debug, "Added a new identity ({identity}) with claim {claimDef}", identity.Name, claimDef);
+            }
         }
 
         var ticket = new AuthenticationTicket(principal, TApiKeyStandard.DefaultSchemeName);
