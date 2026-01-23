@@ -10,6 +10,12 @@ namespace Util.AuthorizationHelper.Policies;
 /// </summary>
 public static class PolicyHelper
 {
+    /// <summary>
+    /// Strongly typed version of <see cref="AuthorizationPolicyBuilder.RequireClaim(string, string[])"/>
+    /// </summary>
+    /// <param name="builder"></param>
+    /// <param name="claimDefinition"></param>
+    /// <returns></returns>
     public static AuthorizationPolicyBuilder RequireClaim(this AuthorizationPolicyBuilder builder, ClaimDefinition claimDefinition)
     {
         return builder.RequireClaim(claimDefinition.ClaimType, claimDefinition.Value);
@@ -31,7 +37,8 @@ public static class PolicyHelper
     /// </summary>
     /// <param name="builder"></param>
     /// <param name="policyDefinition"></param>
-    /// <param name="authSchemes"></param>
+    /// <param name="authSchemes">which auth schemes are allowed to participate. Otherwise, use default</param>
+    // ReSharper disable once MemberCanBePrivate.Global
     public static void AddPolicy(this AuthorizationOptions builder, InternalPolicyDefinition policyDefinition, IReadOnlyCollection<string>? authSchemes = null)
     {
         builder.AddPolicy(policyDefinition.Name, policyBuilder =>

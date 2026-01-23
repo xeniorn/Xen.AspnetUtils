@@ -12,8 +12,10 @@ namespace Util.AuthorizationHelper.Controllers.Controllers;
 /// </summary>
 public static class SharedDIHelper
 {
+    // TODO:  refactor / add version where useAuthorization is live-configurable, i.e. TConvention is able to pull the current value of "useAuthorization" rather that fixing it at app init
     /// <summary>
-    /// 
+    /// The options should be configured using the returned <see cref="OptionsBuilder{TOptions}"/>.
+    /// Technically should be also possible to inject another <see cref="OptionsBuilder{TOptions}"/> after this call to override it but it hasn't been tested.
     /// </summary>
     /// <typeparam name="TController"></typeparam>
     /// <typeparam name="TConvention"></typeparam>

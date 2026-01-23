@@ -93,6 +93,11 @@ public abstract class SpecialControllerConvention<TController>(SpecialController
 
         /// <inheritdoc />
         public abstract bool ReplaceExistingFilters { get; protected set; }
+
+#if DYNAMIC_SETUP_THING_1
+        /// <inheritdoc />
+        public virtual bool AllowDynamicIgnoreAuthRequirements { get; set; } = false;
+#endif
     }
 
     /// <summary>
@@ -114,6 +119,14 @@ public abstract class SpecialControllerConvention<TController>(SpecialController
         /// 
         /// </summary>
         bool ReplaceExistingFilters { get; }
+
+#if DYNAMIC_SETUP_THING_1
+        /// <summary>
+        /// Allow to ignore the applied reqs (whether the consumer actually uses this is another question)
+        /// Maybe remove this.
+        /// </summary>
+        bool AllowDynamicIgnoreAuthRequirements => false;
+#endif
     }
 
     private IMyOptions? Options => conventionOptions;
@@ -140,7 +153,7 @@ public abstract class SpecialControllerConvention<TController>(SpecialController
             action.Filters.Clear();
             _logger.LogWarning("Removed existing filters from action {actionName} in controller {controllerName}", action.ActionName, action.Controller.ControllerName);
         }
-
+        
         action.Filters.Add(new AuthorizeFilter(matchedPolicy));
         _logger.LogInformation("Added policy requirement {policyName} for action {actionName} in controller {controllerName}", matchedPolicy, action.ActionName, action.Controller.ControllerName);
     }

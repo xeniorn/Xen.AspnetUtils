@@ -6,5 +6,8 @@
 /// </summary>
 public interface IStaticPolicyDefinitionContainer
 {
+    /// <summary>
+    /// All policy definitions in this container.
+    /// </summary>
     static abstract IReadOnlyCollection<InternalPolicyDefinition> ContainedPolicyDefinitions { get; }
 }
