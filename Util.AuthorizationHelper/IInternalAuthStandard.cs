@@ -24,6 +24,10 @@ public interface IInternalAuthStandard
     /// Declared type string of the Identity used by this claim set
     /// </summary>
     public static abstract string AuthenticationTypeName { get; }
+
+    /// <summary>
+    /// 
+    /// </summary>
     public static abstract string Namespace { get; }
 
     /// <summary>

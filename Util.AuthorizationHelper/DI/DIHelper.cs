@@ -51,7 +51,30 @@ public static class DIHelper
 
     /// <summary>
     /// Adds authorization based on internal policies, using any of registered authentication schemes
-    /// Auth schemes can be filtered using the <see cref="authenticationSchemeFilter"/> parameter
+    /// Auth schemes can be filtered using the <see cref="authenticationSchemeNames"/> parameter
+    /// </summary>
+    /// <typeparam name="TPolicyDefinitionContainer"></typeparam>
+    /// <param name="builder"></param>
+    /// <param name="requireAuthenticationByDefault">If true, fallback policy will be set to default policy</param>
+    /// <param name="authenticationSchemeNames"></param>
+    /// <returns><see cref="OptionsBuilder{AuthorizationOptions}"/>, which can be used to further configure the options</returns>
+    public static OptionsBuilder<AuthorizationOptions> AddAppInternalAuthorizationUsingAllAuthenticationSchemes<TPolicyDefinitionContainer>(
+        this IHostApplicationBuilder builder,
+        bool requireAuthenticationByDefault = false,
+        IReadOnlyCollection<string>? authenticationSchemeNames = null)
+        where TPolicyDefinitionContainer : IStaticPolicyDefinitionContainer
+        
+        => AddAppInternalAuthorizationUsingAllAuthenticationSchemes<TPolicyDefinitionContainer>(
+            builder,
+            requireAuthenticationByDefault,
+            authenticationSchemeNames is null
+                ? null
+                : x => authenticationSchemeNames.Contains(x.Name));
+
+
+    /// <summary>
+    /// Adds authorization based on internal policies, using any of registered authentication schemes
+    /// Auth schemes can be filtered using the <param name="authenticationSchemeFilter"/> parameter
     /// </summary>
     /// <typeparam name="TPolicyDefinitionContainer"></typeparam>
     /// <param name="builder"></param>

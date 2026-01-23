@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using Util.AuthorizationHelper.Authentication;
+using Util.AuthorizationHelper.Common;
 
 namespace Util.AuthorizationHelper.Claims.Extraction.Base.ApiKey;
 
@@ -21,7 +22,10 @@ public abstract class SpecApiKeyMapBasedClaimExtractor<TClaimSet, TApiAuthStanda
     public class GenericMyOptions : IMyOptions
     {
         /// <inheritdoc />
-        public IReadOnlyDictionary<string, ClaimDefinition[]> ApiKeyAssociatedValueToClaimsMap { get; set; }
+        public NonExistingAppInternalClaimPolicy NonExistingAppInternalClaimPolicy { get; } = NonExistingAppInternalClaimPolicy.Warn;
+
+        /// <inheritdoc />
+        public IReadOnlyDictionary<string, ClaimDefinition[]> ApiKeyAssociatedValueToClaimsMap { get; set; } = new Dictionary<string, ClaimDefinition[]>();
     }
 
     /// <summary>
@@ -29,6 +33,9 @@ public abstract class SpecApiKeyMapBasedClaimExtractor<TClaimSet, TApiAuthStanda
     /// </summary>
     public new interface IMyOptions : SpecApiKeyClaimExtractor<TClaimSet, TApiAuthStandard>.IMyOptions, IClaimMappingContainer
     {
+        /// <inheritdoc cref="Common.NonExistingAppInternalClaimPolicy" />
+        NonExistingAppInternalClaimPolicy NonExistingAppInternalClaimPolicy { get; }
+
         /// <summary>
         /// List of claims to be granted to a matching API key or its associated value (in case the standard uses an API key transformer)
         /// </summary>
