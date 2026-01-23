@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -70,41 +69,77 @@ public static class DIHelper
         var ob = builder.Services.AddOptions<AuthorizationOptions>()
             .Configure<IAuthenticationSchemeProvider>((options, schemeProvider) =>
             {
-                var allSchemes = schemeProvider.GetAllSchemesAsync()
-                    .GetAwaiter().GetResult();
+                if (TPolicyDefinitionContainer.ContainedPolicyDefinitions is not { } allPresetPolicies 
+                    || !allPresetPolicies.Any())
+                    return;
 
-                var finalSchemes = authenticationSchemeFilter is not { } filter
-                    ? allSchemes
-                    : allSchemes.Where(filter);
-
-                var finalSchemeNames = finalSchemes
-                    .Select(x => x.Name)
-                    .ToArray();
-
-                var defaultPolicy =
-                    new AuthorizationPolicy([new DenyAnonymousAuthorizationRequirement()], finalSchemeNames);
-
-                // when [Authorize] is present without policy name
-                options.DefaultPolicy = defaultPolicy;
-
-                // when no [Authorize] nor [AllowAnonymous] is present
-                if (requireAuthenticationByDefault)
-                    options.FallbackPolicy = defaultPolicy;
-                
-#if DEBUG
-                options.AddPolicy("TestPolicy", apb =>
-                {
-                    apb.AuthenticationSchemes = finalSchemeNames;
-                    //apb.AuthenticationSchemes = ["Bearer"];
-                    apb.RequireAuthenticatedUser();
-                });
-#endif
-
-                var allPresetPolicies = TPolicyDefinitionContainer.ContainedPolicyDefinitions;
-                options.AddPolicies(allPresetPolicies, finalSchemeNames);
+                ConfigureOptions_Internal(options,
+                    schemeProvider,
+                    requireAuthenticationByDefault,
+                    authenticationSchemeFilter, 
+                    allPresetPolicies.ToArray());
             });
+                
 
         return ob;
+    }
+
+    internal static (IReadOnlyList<string> Valid, IReadOnlyList<string> All) GetAvailableAuthenticationSchemes(IAuthenticationSchemeProvider schemeProvider,
+        Func<AuthenticationScheme, bool>? authenticationSchemeFilter = null)
+    {
+        var allSchemes = schemeProvider.GetAllSchemesAsync()
+            .GetAwaiter()
+            .GetResult()
+            .ToArray();
+
+        var allSchemeNames = allSchemes.Select(x => x.Name)
+            .ToArray();
+
+        var filteredSchemes = authenticationSchemeFilter is not { } filter
+            ? allSchemes
+            : allSchemes.Where(filter);
+
+        var filteredSchemeNames = filteredSchemes.Select(x => x.Name)
+            .ToArray();
+
+        return (filteredSchemeNames, allSchemeNames);
+    }
+
+    internal static void ConfigureOptions_Internal(
+        AuthorizationOptions options, 
+        IAuthenticationSchemeProvider schemeProvider, 
+        bool requireAuthenticationByDefault,
+        Func<AuthenticationScheme, bool>? authenticationSchemeFilter,
+        params InternalPolicyDefinition[] policies)
+    {
+        // no point in doing anything if there aren't any policies to apply
+        if (!policies.Any())
+            return;
+
+        var (validSchemes, allSchemes) = GetAvailableAuthenticationSchemes(schemeProvider, authenticationSchemeFilter);
+
+        if (!allSchemes.Any())
+        {
+            throw new Exception("No auth schemes have been set up");
+        }
+
+        if (!validSchemes.Any())
+        {
+            throw new Exception($"Of the available schemes ({string.Join(", ", validSchemes)}), none are passing the filter");
+        }
+        
+        // setup default/fallback policies
+        {
+            var defaultPolicy = new AuthorizationPolicy([new DenyAnonymousAuthorizationRequirement()], validSchemes);
+
+            // when [Authorize] is present without policy name
+            options.DefaultPolicy = defaultPolicy;
+
+            // when no [Authorize] nor [AllowAnonymous] is present
+            if (requireAuthenticationByDefault) options.FallbackPolicy = defaultPolicy;
+        }
+        
+        options.AddPolicies(policies, validSchemes);
     }
 }
 
