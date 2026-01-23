@@ -19,6 +19,10 @@ public interface IClaimMappingContainer : IClaimMappingProvider
     /// <returns></returns>
     Task<IReadOnlyCollection<ClaimAssociation>> IClaimMappingProvider.GetMapping(CancellationToken token) => Task.FromResult(ClaimMapping);
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
     FrozenDictionary<ClaimDefinition, IReadOnlySet<ClaimDefinition>> GetFrozenMapping() 
         => ClaimMapping
         .GroupBy(x => x.SourceClaim)

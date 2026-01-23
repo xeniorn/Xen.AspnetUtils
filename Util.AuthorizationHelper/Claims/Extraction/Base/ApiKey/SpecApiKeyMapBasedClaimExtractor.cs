@@ -15,6 +15,18 @@ public abstract class SpecApiKeyMapBasedClaimExtractor<TClaimSet, TApiAuthStanda
     where TClaimSet : IInternalAuthStandard
     where TApiAuthStandard : ISpecApiAuthStandards
 {
+    /// <summary>
+    /// Can be used by inheriting class if no special stuff is required
+    /// </summary>
+    public class GenericMyOptions : IMyOptions
+    {
+        /// <inheritdoc />
+        public IReadOnlyDictionary<string, ClaimDefinition[]> ApiKeyAssociatedValueToClaimsMap { get; set; }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
     public new interface IMyOptions : SpecApiKeyClaimExtractor<TClaimSet, TApiAuthStandard>.IMyOptions, IClaimMappingContainer
     {
         /// <summary>
@@ -26,7 +38,10 @@ public abstract class SpecApiKeyMapBasedClaimExtractor<TClaimSet, TApiAuthStanda
             => ApiKeyAssociatedValueToClaimsMap.SelectMany(kvp => kvp.Value
                 .Select(mappedClaim =>
                 {
-                    var apiKeyClaim = ISpecApiAuthStandards.StandardizedApiKeyClaim<TApiAuthStandard>(kvp.Key);
+                    // 2026-01-23 WARNING! do not use the factory function here as the settings are provided with values as-is, i.e. if a transformation is required,
+                    // then the values need to be provided transformed in the settings. The factory method would do a re-transformation which would be wrong!
+                    // ISpecApiAuthStandards.StandardizedApiKeyClaim<TApiAuthStandard>(kvp.Key);
+                    var apiKeyClaim = new ClaimDefinition(TApiAuthStandard.DefaultClaimType, kvp.Key);
                     return new IClaimMappingProvider.ClaimAssociation(apiKeyClaim, mappedClaim);
                 })
             ).ToArray();

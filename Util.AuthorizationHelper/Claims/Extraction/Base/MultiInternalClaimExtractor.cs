@@ -10,7 +10,7 @@ public abstract class MultiInternalClaimExtractorBase<TClaimSet> : IInternalClai
     where TClaimSet : IInternalAuthStandard
 {
     /// <inheritdoc />
-    async Task<IReadOnlyCollection<ClaimDefinition>> IInternalClaimExtractor.GetClaimDefinitions(ClaimsPrincipal principal, CancellationToken token)
+    public async Task<IReadOnlyCollection<ClaimDefinition>> GetClaimDefinitions(ClaimsPrincipal principal, CancellationToken token)
     {
         if (await GetRelevantIdentities(principal, token) is not { } identities || identities.Count == 0)
         {
