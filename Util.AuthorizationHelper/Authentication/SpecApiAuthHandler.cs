@@ -38,7 +38,7 @@ public class SpecApiAuthHandler<TApiKeyStandard> : AuthenticationHandler<Authent
     /// <param name="request"></param>
     /// <param name="logger"></param>
     /// <returns></returns>
-    internal static AuthenticationTicket? GetAuthenticationTicketFromRequest(HttpRequest request, ILogger logger)
+    internal static AuthenticationTicket? GetAuthenticationTicketFromRequest(HttpRequest request, ILogger? logger = null)
     {
         if (!request.Headers.TryGetValue(TApiKeyStandard.DefaultHeaderName, out var apiKeyValues))
             return null;
@@ -54,7 +54,7 @@ public class SpecApiAuthHandler<TApiKeyStandard> : AuthenticationHandler<Authent
 
             principal.AddIdentity(identity);
 
-            if (logger.IsEnabled(LogLevel.Debug))
+            if (logger is not null && logger.IsEnabled(LogLevel.Debug))
             {
                 logger.Log(LogLevel.Debug, "Added a new identity ({identity}) with claim {claimDef}", identity.Name, claimDef);
             }

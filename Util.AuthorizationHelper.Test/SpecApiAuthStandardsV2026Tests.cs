@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
+using Microsoft.Extensions.Logging.Abstractions;
 using Util.AuthorizationHelper.Authentication;
 
 namespace Util.AuthorizationHelper.Test;
@@ -37,7 +38,7 @@ public abstract class SpecApiAuthStandardsV2026_TestsBase<TStandard>
             Headers = { [ExpectedHeader] = TestApiKey }
         };
 
-        var ticket = SpecApiAuthHandler<TStandard>.GetAuthenticationTicketFromRequest(request);
+        var ticket = SpecApiAuthHandler<TStandard>.GetAuthenticationTicketFromRequest(request, NullLogger.Instance);
         
         Assert.NotNull(ticket);
         Assert.Equal(ExpectedSchemeName, ticket.AuthenticationScheme);
@@ -63,7 +64,7 @@ public abstract class SpecApiAuthStandardsV2026_TestsBase<TStandard>
             Headers = { [WrongHeader] = TestApiKey }
         };
 
-        var ticket = SpecApiAuthHandler<TStandard>.GetAuthenticationTicketFromRequest(request);
+        var ticket = SpecApiAuthHandler<TStandard>.GetAuthenticationTicketFromRequest(request, NullLogger.Instance);
 
         Assert.Null(ticket);
     }
