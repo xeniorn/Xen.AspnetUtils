@@ -11,14 +11,14 @@
 
 	<PropertyGroup>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<IncludeSymbols>true</IncludeSymbols>
-		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 		<EmbedAllSources>true</EmbedAllSources>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 		<Deterministic>true</Deterministic>
 		<DebugType>embedded</DebugType>
+		<!--<IncludeSymbols>true</IncludeSymbols>-->
+		<!--<SymbolPackageFormat>snupkg</SymbolPackageFormat>-->
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" Version="10.0.102" />
