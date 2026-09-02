@@ -47,16 +47,23 @@ public class SpecApiAuthHandler<TApiKeyStandard> : AuthenticationHandler<Authent
         
         foreach (var apiKeyValue in apiKeyValues.Where(x => !string.IsNullOrEmpty(x)).OfType<string>())
         {
-            var claimDef = ISpecApiAuthStandards.StandardizedApiKeyClaim<TApiKeyStandard>(apiKeyValue);
-            
+            // one claim per digest the standard declares. A standard supporting several lets key stores built on
+            // different digests be matched from a single scheme - a stored hash can never be recomputed into
+            // another digest, so the alternative would be reissuing every existing key
+            var claimDefs = ISpecApiAuthStandards.StandardizedApiKeyClaims<TApiKeyStandard>(apiKeyValue);
+
             var identity = new ClaimsIdentity(TApiKeyStandard.DefaultSchemeName);
-            identity.AddClaim(claimDef.ToClaim());
+
+            foreach (var claimDef in claimDefs)
+            {
+                identity.AddClaim(claimDef.ToClaim());
+            }
 
             principal.AddIdentity(identity);
 
             if (logger is not null && logger.IsEnabled(LogLevel.Debug))
             {
-                logger.Log(LogLevel.Debug, "Added a new identity ({identity}) with claim {claimDef}", identity.Name, claimDef);
+                logger.Log(LogLevel.Debug, "Added a new identity ({identity}) with claims {claimDefs}", identity.Name, claimDefs);
             }
         }
 

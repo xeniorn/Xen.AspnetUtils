@@ -14,7 +14,11 @@ namespace Util.AuthorizationHelper.Minting.Test;
 /// </summary>
 public class StandardApiKeyHasherTests
 {
-    private static string ClaimValueFromHandler<TStandard>(string apiKey)
+    /// <summary>
+    /// The claim the handler emits for the standard's primary digest - the one a hasher derived from that standard
+    /// produces. A standard may emit several claims; only the primary one is what gets stored.
+    /// </summary>
+    private static string PrimaryClaimValueFromHandler<TStandard>(string apiKey)
         where TStandard : ISpecApiAuthStandards
     {
         var request = new DefaultHttpRequest(new DefaultHttpContext())
@@ -24,17 +28,19 @@ public class StandardApiKeyHasherTests
 
         var ticket = SpecApiAuthHandler<TStandard>.GetAuthenticationTicketFromRequest(request, NullLogger.Instance);
 
-        return ticket!.Principal.Identities.Single().Claims.Single().Value;
+        return ticket!.Principal.Identities.Single().Claims
+            .Single(x => x.Type == TStandard.DefaultClaimType)
+            .Value;
     }
 
     [Fact]
-    public void Sha256_HashMatchesWhatTheHandlerEmits()
+    public void V2026_HashMatchesWhatTheHandlerEmits()
     {
         var apiKey = new Base64UrlApiKeyGenerator("ptk_").Generate();
 
-        var stored = new StandardApiKeyHasher<SpecApiAuthStandardsV2026_Sha256>().Hash(apiKey);
+        var stored = new StandardApiKeyHasher<SpecApiAuthStandardsV2026>().Hash(apiKey);
 
-        Assert.Equal(ClaimValueFromHandler<SpecApiAuthStandardsV2026_Sha256>(apiKey), stored);
+        Assert.Equal(PrimaryClaimValueFromHandler<SpecApiAuthStandardsV2026>(apiKey), stored);
     }
 
     [Fact]
@@ -44,18 +50,41 @@ public class StandardApiKeyHasherTests
 
         var stored = new StandardApiKeyHasher<SpecApiAuthStandardsV2026_Md5>().Hash(apiKey);
 
-        Assert.Equal(ClaimValueFromHandler<SpecApiAuthStandardsV2026_Md5>(apiKey), stored);
+        Assert.Equal(PrimaryClaimValueFromHandler<SpecApiAuthStandardsV2026_Md5>(apiKey), stored);
     }
 
     /// <summary>
-    /// The algorithm id is stored on every key so two standards can coexist; it has to actually distinguish them.
+    /// The algorithm id is stored on every key, so a store written under one digest is distinguishable from a
+    /// store written under another.
     /// </summary>
     [Fact]
-    public void AlgorithmIdDistinguishesTheStandards()
+    public void AlgorithmIdDistinguishesTheDigests()
     {
         Assert.NotEqual(
             new StandardApiKeyHasher<SpecApiAuthStandardsV2026_Md5>().AlgorithmId,
-            new StandardApiKeyHasher<SpecApiAuthStandardsV2026_Sha256>().AlgorithmId);
+            new StandardApiKeyHasher<SpecApiAuthStandardsV2026>().AlgorithmId);
+    }
+
+    /// <summary>
+    /// A key minted under the v2026 standard is still matchable by an md5-keyed store, because the handler emits
+    /// that digest too. This is what lets both stores live under one scheme.
+    /// </summary>
+    [Fact]
+    public void AKeyAlsoCarriesTheLegacyDigest()
+    {
+        var apiKey = new Base64UrlApiKeyGenerator("ptk_").Generate();
+
+        var md5 = new StandardApiKeyHasher<SpecApiAuthStandardsV2026_Md5>().Hash(apiKey);
+
+        var request = new DefaultHttpRequest(new DefaultHttpContext())
+        {
+            Headers = { [SpecApiAuthStandardsV2026.DefaultHeaderName] = apiKey }
+        };
+        var ticket = SpecApiAuthHandler<SpecApiAuthStandardsV2026>
+            .GetAuthenticationTicketFromRequest(request, NullLogger.Instance);
+
+        Assert.Contains(ticket!.Principal.Identities.Single().Claims,
+            x => x.Type == SpecApiAuthStandardsV2026_Md5.MyDefaultClaimType && x.Value == md5);
     }
 
     [Fact]

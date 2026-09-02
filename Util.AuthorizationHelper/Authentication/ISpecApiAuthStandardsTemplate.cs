@@ -31,4 +31,30 @@ public interface ISpecApiAuthStandards
     public static abstract string DefaultHeaderName { get; }
     public static abstract string DefaultSchemeName { get; }
     public static abstract string DefaultClaimType { get; }
+
+    /// <summary>
+    /// Every claim a presented key should produce, when the standard supports more than one digest.
+    /// <para>
+    /// Empty - the default - means the single digest described by <see cref="DefaultClaimType"/> and
+    /// <see cref="ApiKeyToClaimValueTransformer"/>. Declaring several lets key stores built on different digests
+    /// coexist under one authentication scheme, which matters because a stored hash can never be recomputed into
+    /// another digest: only the hash was kept.
+    /// </para>
+    /// </summary>
+    public static virtual IReadOnlyCollection<ApiKeyDigest> Digests => [];
+
+    /// <summary>
+    /// The digests <typeparamref name="T"/> actually emits, resolving the default when it declares none.
+    /// </summary>
+    static IReadOnlyCollection<ApiKeyDigest> DigestsOf<T>() where T : ISpecApiAuthStandards
+        => T.Digests.Count > 0
+            ? T.Digests
+            : [new ApiKeyDigest(T.DefaultClaimType, T.ApiKeyToClaimValueTransformer)];
+
+    /// <summary>
+    /// Every standardized claim the api key produces under <typeparamref name="T"/>.
+    /// </summary>
+    static IReadOnlyCollection<ClaimDefinition> StandardizedApiKeyClaims<T>(string apiKey)
+        where T : ISpecApiAuthStandards
+        => DigestsOf<T>().Select(x => x.ToClaim(apiKey)).ToArray();
 }
