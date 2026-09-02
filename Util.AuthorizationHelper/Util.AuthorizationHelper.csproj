@@ -63,8 +63,10 @@
 
 	<ItemGroup>
 		<InternalsVisibleTo Include="Util.AuthorizationHelper.Test" />
-		<!-- needs SpecApiAuthHandler.GetAuthenticationTicketFromRequest, to prove a stored key hash equals what
-		     the handler actually emits for that key -->
+		<!-- lives in the Xen.Utils.AspnetAuthorizationHelper.Minting repo, and needs
+		     SpecApiAuthHandler.GetAuthenticationTicketFromRequest to prove a stored key hash equals what the
+		     handler actually emits for that key. InternalsVisibleTo matches on assembly name, so it still
+		     applies across repositories. -->
 		<InternalsVisibleTo Include="Util.AuthorizationHelper.Minting.Test" />
 	</ItemGroup>
 
