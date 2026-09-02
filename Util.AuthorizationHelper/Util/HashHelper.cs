@@ -25,4 +25,27 @@ public static class HashHelper
             ? hashString.ToLower()
             : hashString.ToUpper();
     }
+
+    /// <summary>
+    /// Creates a sha256 hash from input string.
+    /// String will be treated as utf8 encoded. Output will be lowercase by default.
+    /// blaZaraBla123 => ab91fe8a7400494d01674d2933d3587227ddbb92c92ca30d0c31f4d97f34be3f
+    /// </summary>
+    /// <remarks>
+    /// Deliberately utf8, unlike <see cref="GetMd5HashHexString"/>, which is ascii and therefore maps every
+    /// non-ascii character to the same byte - two different inputs could hash alike. Both behave identically
+    /// for ascii input, which is what api keys are, so this is not a compatibility concern in practice.
+    /// </remarks>
+    /// <param name="input"></param>
+    /// <param name="lowercase"></param>
+    /// <returns></returns>
+    public static string GetSha256HashHexString(string input, bool lowercase = true)
+    {
+        var bytes = Encoding.UTF8.GetBytes(input);
+        var hash = SHA256.HashData(bytes);
+        var hashString = Convert.ToHexString(hash);
+        return lowercase
+            ? hashString.ToLowerInvariant()
+            : hashString.ToUpperInvariant();
+    }
 }

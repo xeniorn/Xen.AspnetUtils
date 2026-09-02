@@ -8,4 +8,8 @@
   <Project Path="Util.AuthorizationHelper.Controllers.WebApiTester/Util.AuthorizationHelper.Controllers.WebApiTester.csproj" Id="25fb137d-645f-49a9-bad1-599d4e68f4e4" />
   <Project Path="Util.AuthorizationHelper.Controllers/Util.AuthorizationHelper.Controllers.csproj" Id="c3362b9d-28d4-4685-9bcf-9e9e1cb2d3e2" />
   <Project Path="Util.AuthorizationHelper.Test/Util.AuthorizationHelper.Test.csproj" />
+  <Project Path="Util.ApiKeyMinting/Util.ApiKeyMinting.csproj" />
+  <Project Path="Util.ApiKeyMinting.Test/Util.ApiKeyMinting.Test.csproj" />
+  <Project Path="Util.AuthorizationHelper.Minting/Util.AuthorizationHelper.Minting.csproj" />
+  <Project Path="Util.AuthorizationHelper.Minting.Test/Util.AuthorizationHelper.Minting.Test.csproj" />
 </Solution>

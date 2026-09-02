@@ -86,6 +86,32 @@ public class SpecApiAuthStandardsV2026_Md5_Tests : SpecApiAuthStandardsV2026_Tes
     protected override string ExpectedClaimValue => Md5HashOfTestApiKey;
 }
 
+public class SpecApiAuthStandardsV2026_Sha256_Tests : SpecApiAuthStandardsV2026_TestsBase<SpecApiAuthStandardsV2026_Sha256>
+{
+    private const string Sha256HashOfTestApiKey = "ab91fe8a7400494d01674d2933d3587227ddbb92c92ca30d0c31f4d97f34be3f";
+
+    /// <inheritdoc />
+    protected override string ExpectedClaimValue => Sha256HashOfTestApiKey;
+
+    /// <summary>
+    /// The whole point of this standard existing separately: it must not collide with the md5 one when both are
+    /// registered, and scheme names are the unique key authentication registers under.
+    /// </summary>
+    [Fact]
+    public void SchemeNameDiffersFromTheOtherStandards()
+    {
+        Assert.NotEqual(SpecApiAuthStandardsV2026_Md5.DefaultSchemeName, SpecApiAuthStandardsV2026_Sha256.DefaultSchemeName);
+        Assert.NotEqual(SpecApiAuthStandardsV2026_Direct.DefaultSchemeName, SpecApiAuthStandardsV2026_Sha256.DefaultSchemeName);
+    }
+
+    [Fact]
+    public void ClaimTypeDiffersFromTheOtherStandards()
+    {
+        Assert.NotEqual(SpecApiAuthStandardsV2026_Md5.DefaultClaimType, SpecApiAuthStandardsV2026_Sha256.DefaultClaimType);
+        Assert.NotEqual(SpecApiAuthStandardsV2026_Direct.DefaultClaimType, SpecApiAuthStandardsV2026_Sha256.DefaultClaimType);
+    }
+}
+
 //public class SpecApiAuthStandardsV2026_MD5_Tests
 //{
 //    [Fact]

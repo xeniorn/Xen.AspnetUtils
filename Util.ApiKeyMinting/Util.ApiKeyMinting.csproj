@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks>net8.0;net10.0</TargetFrameworks>
@@ -17,8 +17,6 @@
 		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 		<Deterministic>true</Deterministic>
 		<DebugType>embedded</DebugType>
-		<!--<IncludeSymbols>true</IncludeSymbols>-->
-		<!--<SymbolPackageFormat>snupkg</SymbolPackageFormat>-->
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" Version="10.0.102" />
@@ -38,13 +36,13 @@
 	</Choose>
 
 	<PropertyGroup>
-		<PackageId>Xen.Utils.AspnetAuthorizationHelper</PackageId>
+		<PackageId>Xen.Utils.ApiKeyMinting</PackageId>
 		<Authors>Juraj Ahel</Authors>
-		<Description>For strongly-typed policy-based auth in aspnet, conforming to an app-internal security standard</Description>
+		<Description>Delegated, self-service API key minting: who may hand out which permissions, for how long, and whether a key stays alive. Framework-free - permissions and policies are plain strings and persistence is an interface.</Description>
 		<PackageProjectUrl>https://github.com/xeniorn/Xen.AspnetUtils</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/xeniorn/Xen.AspnetUtils</RepositoryUrl>
 		<PackageIcon>icon.png</PackageIcon>
-		<PackageTags>api;security;authentication;authorization</PackageTags>
+		<PackageTags>api;security;authorization;apikey</PackageTags>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 	</PropertyGroup>
@@ -55,17 +53,16 @@
 		<None Include="../Resources/icon.png" Pack="true" PackagePath="" />
 	</ItemGroup>
 
+	<!--
+	    Deliberately no dependency on Util.AuthorizationHelper, EF Core or ASP.NET. This package must stay usable
+	    from anything; the aspnet binding lives in Xen.Utils.AspnetAuthorizationHelper.Minting.
+	-->
 	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.3.9" />
-		<PackageReference Include="Microsoft.AspNetCore.Authorization" Version="9.0.1" />
-		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.1" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<InternalsVisibleTo Include="Util.AuthorizationHelper.Test" />
-		<!-- needs SpecApiAuthHandler.GetAuthenticationTicketFromRequest, to prove a stored key hash equals what
-		     the handler actually emits for that key -->
-		<InternalsVisibleTo Include="Util.AuthorizationHelper.Minting.Test" />
+		<InternalsVisibleTo Include="Util.ApiKeyMinting.Test" />
 	</ItemGroup>
 
 </Project>
